@@ -1,10 +1,10 @@
 // pages/set-api-key.tsx
 
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 const SetApiKey = () => {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState("");
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -14,7 +14,7 @@ const SetApiKey = () => {
     document.cookie = `apiKey=${apiKey}; path=/`;
 
     // Redirect to the home page
-    router.push('/');
+    router.push("/");
   };
 
   return (

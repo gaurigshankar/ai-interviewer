@@ -1,13 +1,13 @@
 // pages/index.tsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 const Interview = () => {
   const [questionNumber, setQuestionNumber] = useState(1);
   const [totalQuestions] = useState(6);
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [feedback, setFeedback] = useState('');
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [feedback, setFeedback] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
@@ -17,15 +17,15 @@ const Interview = () => {
 
   const fetchQuestion = async () => {
     try {
-      const response = await fetch('/api/interview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: 'Generate interview question' }),
+      const response = await fetch("/api/interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: "Generate interview question" }),
       });
       const data = await response.json();
       setQuestion(data.result.choices[0].message.content);
     } catch (error) {
-      console.error('Error fetching question:', error);
+      console.error("Error fetching question:", error);
     }
   };
 
@@ -34,29 +34,29 @@ const Interview = () => {
 
     // Send the answer to the API for evaluation
     try {
-      const response = await fetch('/api/interview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: `Evaluate the following answer: ${answer}` }),
       });
       const data = await response.json();
       setFeedback(data.result.choices[0].message.content);
       setShowFeedback(true);
     } catch (error) {
-      console.error('Error evaluating answer:', error);
+      console.error("Error evaluating answer:", error);
     }
   };
 
   const handleNextQuestion = () => {
     if (questionNumber < totalQuestions) {
       setQuestionNumber(questionNumber + 1);
-      setAnswer('');
-      setFeedback('');
+      setAnswer("");
+      setFeedback("");
       setShowFeedback(false);
       fetchQuestion();
     } else {
       // Interview is complete
-      alert('Interview complete!');
+      alert("Interview complete!");
     }
   };
 
