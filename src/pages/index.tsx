@@ -1,89 +1,40 @@
 // pages/index.tsx
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
-const Interview = () => {
-  const [questionNumber, setQuestionNumber] = useState(1);
-  const [totalQuestions] = useState(6);
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
+const Home = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
-    // Fetch the first question when the component mounts
-    fetchQuestion();
-  }, []);
-
-  const fetchQuestion = async () => {
-    try {
-      const response = await fetch("/api/interview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: "Generate interview question" }),
-      });
-      const data = await response.json();
-      setQuestion(data.result.choices[0].message.content);
-    } catch (error) {
-      console.error("Error fetching question:", error);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Send the answer to the API for evaluation
-    try {
-      const response = await fetch("/api/interview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: `Evaluate the following answer: ${answer}` }),
-      });
-      const data = await response.json();
-      setFeedback(data.result.choices[0].message.content);
-      setShowFeedback(true);
-    } catch (error) {
-      console.error("Error evaluating answer:", error);
-    }
-  };
-
-  const handleNextQuestion = () => {
-    if (questionNumber < totalQuestions) {
-      setQuestionNumber(questionNumber + 1);
-      setAnswer("");
-      setFeedback("");
-      setShowFeedback(false);
-      fetchQuestion();
+    if (status === "loading") return; // Do nothing while loading
+    if (!session) {
+      signIn(); // Redirect to login if not authenticated
     } else {
-      // Interview is complete
-      alert("Interview complete!");
+      // Redirect based on role
+      if (session.user?.role === "admin") {
+        router.push("/admin");
+      } else if (session.user?.role === "interviewer") {
+        router.push("/interviewer");
+      } else if (session.user?.role === "interviewee") {
+        router.push("/interviewee");
+      }
     }
-  };
+  }, [session, status, router]);
 
   return (
-    <div>
-      {!showFeedback ? (
-        <form onSubmit={handleSubmit}>
-          <h2>
-            Question {questionNumber} of {totalQuestions}
-          </h2>
-          <p>{question}</p>
-          <textarea
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            required
-          />
-          <button type="submit">Submit Answer</button>
-        </form>
-      ) : (
-        <div>
-          <h2>Feedback</h2>
-          <p>{feedback}</p>
-          <button onClick={handleNextQuestion}>Next Question</button>
-        </div>
-      )}
-    </div>
+    <>
+      <Head>
+        <title>AI Interviewer</title>
+      </Head>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p>Loading...</p>
+      </div>
+    </>
   );
 };
 
-export default Interview;
+export default Home;
