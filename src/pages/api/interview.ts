@@ -3,8 +3,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 import cookie from "cookie";
+import { requireAuth } from "../../lib/middlewares/auth";
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -38,3 +39,6 @@ export default async function handler(
     res.status(500).json({ error: error.message });
   }
 }
+
+
+export default requireAuth(handler);
